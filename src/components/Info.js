@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Link, IconButton, Box, Center, Text, Stack, List, ListItem, ListIcon, Button, Flex,} from '@chakra-ui/react'
-import { CheckIcon, SearchIcon } from '@chakra-ui/icons';
+import { Link, Box, Center, Text, Stack, List, ListItem, ListIcon, Button, Flex,} from '@chakra-ui/react'
+import { CheckIcon } from '@chakra-ui/icons';
 import { ethers } from 'ethers';
 import { dripFaucetAddress } from '../contractAddresses/contractAddresses';
+import { dogPoundAddress } from '../contractAddresses/contractAddresses';
 import { pancakeSwapContract } from '../contractAddresses/contractAddresses';
 import { dripTokenAddress } from '../contractAddresses/contractAddresses'
 import { dripFaucetABI } from '../contractABIs/faucetABI';
@@ -10,6 +11,8 @@ import { dripFaucetABI } from '../contractABIs/faucetABI';
 import Web3 from 'web3';
 import { pancakeSwapAbi } from '../contractABIs/pancakeSwapAbi';
 import { tokenAbi } from '../contractABIs/tokenAbi';
+import { getContractInstance } from '../helpers/getContractInstance';
+import { dogPoundAbi } from '../contractABIs/dogPoundAbi';
 
 
 const web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:8545'))
@@ -22,6 +25,12 @@ const Info = () => {
     // eslint-disable-next-line no-unused-vars
     let [totals, setTotals] = useState(0);
     let [dripPrice, setDripPrice] = useState(0);
+
+    let [dogsPrice, setDogsPrice] = useState(0);
+    let [pigsPrice, setPigsPrice] = useState(0);
+    // eslint-disable-next-line no-unused-vars
+    let [amountOfDogs, setAmountOfDogs] = useState(0)
+
     let [show, setShow] = useState(false);
     // eslint-disable-next-line no-unused-vars
     let [ownerAddress, setOwnerAddress] = useState();
@@ -39,7 +48,39 @@ const Info = () => {
         // let dripDepositBalance = await fountainContract._jsonInterface[65]('0x100e57f5ae00fa6512e1bc7a0d9edef01d3ca12b');
         // console.log(dripDepositBalance);
         let USDValueDrip = await getTokenValueInUSD('0x20f663CEa80FaCE82ACDFA3aAE6862d246cE0333');
+        let USDValueAFDogs = await getTokenValueInUSD('0x198271b868daE875bFea6e6E4045cDdA5d6B9829');
+        let USDValueAFPigs = await getTokenValueInUSD('0x9a3321E1aCD3B9F6debEE5e042dD2411A1742002');
+
+        let dogPoundContract = await getContractInstance(dogPoundAbi,dogPoundAddress, web3)
+        
+        let chinga = await dogPoundContract.methods.userInfo(feedAddress).call().then((res, err) => {
+            
+            if(err) {
+                console.log(err);
+                return err
+            }
+            let amtDogs = ethers.utils.formatEther(res.amount);
+            // console.log(amtDogs);
+            amtDogs = Number(amtDogs);
+            let chopped = Number(amtDogs.toFixed(2));
+
+            console.log(chopped)
+            
+            setAmountOfDogs(chopped)
+   
+            return chopped
+        });
+        
         console.log(USDValueDrip);
+        console.log(USDValueAFDogs);
+        console.log(USDValueAFPigs);
+        
+        setDogsPrice(USDValueAFDogs);
+        setPigsPrice(USDValueAFPigs);
+        
+        setAmountOfDogs(chinga);
+        console.log(chinga, ' DOGS');
+
         await fountainContract.methods.userInfo(feedAddress).call().then((res, err) => {
             // handle any errors
             if(err) {
@@ -71,7 +112,7 @@ const Info = () => {
             // do the calculations to determine what the total value in USD per day
             //? I will need to make some addtional functions to return integers for calculations
             // dev todo need to add additional calculations to determine Dog, Pig Stake, and Piggy Bank numbers.
-            let totalReturn = dailyReturn * USDValueDrip;
+            let totalReturn = (dailyReturn * USDValueDrip) ;
             
             
 
@@ -81,6 +122,7 @@ const Info = () => {
             let makeObj = {
                 owner: feedAddress,
                 faucetBalance: chopped,
+                dogPoundBalance: chinga,
                 dripDaily: totalReturn
             }
             // users.push(Object.assign(makeObj, {}));
@@ -160,22 +202,28 @@ const Info = () => {
 
         // console.log(tokenAddress);
         // console.log(dripFaucetAddress);
-
-        if(tokenAddress === dripTokenAddress) {
-            setDripPrice(dollarValue);
-        }
-        
-
         let value = ethers.utils.formatEther(balance);
         value = Number(value);
         value = value.toFixed(2)
         console.log(value);
 
-        let totalValue = value * 0.01 * dollarValue;
-        totalValue = Number(totalValue);
-        totalValue = totalValue.toFixed(2);
-        console.log(totalValue, ' <<<<< totalValue var')
-        setTotals(totalValue);
+        if(tokenAddress === dripTokenAddress) {
+
+            setDripPrice(dollarValue);
+            let totalValue = value * 0.01 * dollarValue;
+            
+            totalValue = Number(totalValue);
+            totalValue = totalValue.toFixed(2);
+            
+            console.log(totalValue, ' <<<<< totalValue var')
+
+            setTotals(totalValue);
+        }
+        
+
+        
+
+        
         console.log('Value in BNB: ', priceInBnb);
 
         console.log('Drip Value in USD: ', dollarValue);
@@ -243,9 +291,8 @@ const Info = () => {
 
                         
                         <List spacing={3}>
-                            <ListItem color={'black'} fontSize={'15px'} align={'left'}>
-                                <ListIcon as={CheckIcon} color="green.400" />
-                                <Link href={`https://bscscan.com/address/${owner.owner}`}>BSC Address:</Link>
+                            <ListItem color={'black'} fontSize={'20px'} align={'center'}>
+                                <Link href={`https://bscscan.com/address/${owner.owner}`}>BSC Address</Link>
                             </ListItem>
                             <ListItem color={'black'} fontSize={'13px'} align={'center'}>
                             <Link href={`https://bscscan.com/address/${owner.owner}`}>{owner.owner}</Link>
@@ -253,41 +300,58 @@ const Info = () => {
                             
                             <ListItem color={'black'} fontSize={'15px'} align={'left'}>
                             <ListIcon as={CheckIcon} color="green.400" />
-                                <Link href={`https://debank.com/profile/${owner.owner}`} isExternal>Debank <IconButton aria-label='Search database' color={'blue'} icon={<SearchIcon />}></IconButton></Link>
-                            </ListItem>
-                            <ListItem color={'black'} fontSize={'15px'} align={'left'}>
-                            <ListIcon as={CheckIcon} color="green.400" />
                             Drip Faucet: {owner.faucetBalance} 
                             </ListItem>
                             <ListItem color={'black'} fontSize={'15px'} align={'left'}>
                             <ListIcon as={CheckIcon} color="green.400" />
-                            <Link href='https://drip.formulate.finance/drip/' isExternal>Formulate Finance (Drip)</Link>
-                            </ListItem>
-                            <ListItem color={'black'} fontSize={'15px'} align={'left'}>
-                            <ListIcon as={CheckIcon} color="green.400" />
-                            <Link href='https://drip.formulate.finance/piggy-bank/' isExternal>Formulate Finance (Piggy Bank)</Link>
+                            Dog Pound: {owner.dogPoundBalance} 
                             </ListItem>
                             <ListItem color={'black'} fontSize={'15px'} align={'left'}>
                             <ListIcon as={CheckIcon} color="green.400" />
                             Drip Price = {dripPrice}
                             </ListItem>
+                            <ListItem color={'black'} fontSize={'15px'} align={'left'}>
+                            <ListIcon as={CheckIcon} color="green.400" />
+                            Dogs Price = {dogsPrice}
+                            </ListItem>
+                            <ListItem color={'black'} fontSize={'15px'} align={'left'}>
+                            <ListIcon as={CheckIcon} color="green.400" />
+                            Pigs Price = {pigsPrice}
+                            </ListItem>
+                            <ListItem color={'black'} fontSize={'15px'} align={'left'}>
+                            <ListIcon as={CheckIcon} color="green.400" />
+                            <Link href='https://drip.formulate.finance/drip/' isExternal>Formulate- Drip</Link>
+                            </ListItem>
+                            <ListItem color={'black'} fontSize={'15px'} align={'left'}>
+                            <ListIcon as={CheckIcon} color="green.400" />
+                            <Link href='https://drip.formulate.finance/piggy-bank/' isExternal>Formulate- Piggy Bank</Link>
+                            </ListItem>
+                            
+                            <Link href={`https://debank.com/profile/${owner.owner}`} isExternal>
+                                <Box backgroundColor={'#D8D8D8'} mt={2}>
+                                    
+                                    <Button
+                                        m={2}
+
+                                        w={'90%'}
+                                        bg={'green.400'}
+                                        color={'white'}
+                                        rounded={'xl'}
+                                        boxShadow={'0 5px 20px 0px rgb(72 187 120 / 43%)'}
+                                        _hover={{
+                                        bg: 'green.500',
+                                        }}
+                                        _focus={{
+                                        bg: 'green.500',
+                                        }} >
+                                        Go to DeBank
+                                    </Button>
+                                
+                                </Box>
+                            </Link>
                         </List>
 
-                        <Button
-                            mt={10}
-                            w={'full'}
-                            bg={'green.400'}
-                            color={'white'}
-                            rounded={'xl'}
-                            boxShadow={'0 5px 20px 0px rgb(72 187 120 / 43%)'}
-                            _hover={{
-                            bg: 'green.500',
-                            }}
-                            _focus={{
-                            bg: 'green.500',
-                            }} >
-                            <Link href={`https://debank.com/profile/${owner.owner}` }target='__blank'>Go to Debank</Link>  
-                        </Button>
+                        
                     </Box>
                     </Center>
                 

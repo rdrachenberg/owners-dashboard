@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, Box, Center, Text, Stack, List, ListItem, ListIcon, Button, Flex,} from '@chakra-ui/react'
-import { CheckIcon } from '@chakra-ui/icons';
+import { CheckIcon, CopyIcon, LinkIcon, StarIcon, UnlockIcon, ArrowRightIcon } from '@chakra-ui/icons';
 import { ethers } from 'ethers';
 import { dripFaucetAddress } from '../contractAddresses/contractAddresses';
 import { dogPoundAddress } from '../contractAddresses/contractAddresses';
@@ -13,13 +13,17 @@ import { pancakeSwapAbi } from '../contractABIs/pancakeSwapAbi';
 import { tokenAbi } from '../contractABIs/tokenAbi';
 import { getContractInstance } from '../helpers/getContractInstance';
 import { dogPoundAbi } from '../contractABIs/dogPoundAbi';
+import {adminLevelAccess} from '../helpers/adminLevelAccess';
 
 
 const web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:8545'))
-let accountsSeed = process.env.REACT_APP_ACCOUNTS_SEED.split(' ')
-let users = []
 
-const Info = () => {
+let accountsSeed = process.env.REACT_APP_ACCOUNTS_SEED.split(' ');
+let accountNames = process.env.REACT_APP_NAMED_ACCOUNTS.split(', ');
+
+let users = [];
+
+const Info = (props) => {
     let [balance, setBalance] = useState(0);
     let [userInfoObj, setUserInfoObj] = useState({});
     // eslint-disable-next-line no-unused-vars
@@ -29,7 +33,8 @@ const Info = () => {
     let [dogsPrice, setDogsPrice] = useState(0);
     let [pigsPrice, setPigsPrice] = useState(0);
     // eslint-disable-next-line no-unused-vars
-    let [amountOfDogs, setAmountOfDogs] = useState(0)
+    let [amountOfDogs, setAmountOfDogs] = useState(0);
+    // let [adminLeveler, setAdminLeveler] = useState('');
 
     let [show, setShow] = useState(false);
     // eslint-disable-next-line no-unused-vars
@@ -40,7 +45,10 @@ const Info = () => {
         console.log('accountSeed var ^^^^^^^^')
         console.log(feedAddress);
         console.log('feedAddress var ^^^^^^^^^')
-
+      
+        // setAdminLeveler(adminLevel);
+        // console.log(adminLeveler);
+        // console.log('adminLeveler here ^^^^^^^^^^^^^')
         setOwnerAddress(feedAddress);
 
         let fountainContract = await new web3.eth.Contract( dripFaucetABI, dripFaucetAddress, web3);
@@ -51,7 +59,8 @@ const Info = () => {
         let USDValueAFDogs = await getTokenValueInUSD('0x198271b868daE875bFea6e6E4045cDdA5d6B9829');
         let USDValueAFPigs = await getTokenValueInUSD('0x9a3321E1aCD3B9F6debEE5e042dD2411A1742002');
 
-        let dogPoundContract = await getContractInstance(dogPoundAbi,dogPoundAddress, web3)
+        let dogPoundContract = await getContractInstance(dogPoundAbi,dogPoundAddress, web3);
+        // let pigPenContract = await getContractInstance(,'0x9a3321E1aCD3B9F6debEE5e042dD2411A1742002',,);
         
         let chinga = await dogPoundContract.methods.userInfo(feedAddress).call().then((res, err) => {
             
@@ -71,15 +80,15 @@ const Info = () => {
             return chopped
         });
         
-        console.log(USDValueDrip);
-        console.log(USDValueAFDogs);
-        console.log(USDValueAFPigs);
+        // console.log(USDValueDrip);
+        // console.log(USDValueAFDogs);
+        // console.log(USDValueAFPigs);
         
         setDogsPrice(USDValueAFDogs);
         setPigsPrice(USDValueAFPigs);
         
         setAmountOfDogs(chinga);
-        console.log(chinga, ' DOGS');
+        // console.log(chinga, ' DOGS');
 
         await fountainContract.methods.userInfo(feedAddress).call().then((res, err) => {
             // handle any errors
@@ -112,17 +121,32 @@ const Info = () => {
             // do the calculations to determine what the total value in USD per day
             //? I will need to make some addtional functions to return integers for calculations
             // dev todo need to add additional calculations to determine Dog, Pig Stake, and Piggy Bank numbers.
-            let totalReturn = (dailyReturn * USDValueDrip) ;
-            
-            
+
+            // console.log(chinga, dogsPrice);
+            // console.log('this is here ^^^^^^^^')
+            let totalReturn = (dailyReturn * USDValueDrip);
+            let dogsStakedValue = chinga * USDValueAFDogs;
 
             setBalance(chopped);
-            setTotals(dailyReturn)
+            setTotals(dailyReturn);
+            let accountName;
+
+            if(feedAddress === accountsSeed[0]) {
+                accountName = accountNames[0]
+            
+            } else if(feedAddress === accountsSeed[1]) {
+                accountName = accountNames[1]
+            
+            } else {
+                accountName = accountNames[2]
+            }
 
             let makeObj = {
                 owner: feedAddress,
+                nameThatAccount: accountName,
                 faucetBalance: chopped,
                 dogPoundBalance: chinga,
+                dogsStakedValue: dogsStakedValue,
                 dripDaily: totalReturn
             }
             // users.push(Object.assign(makeObj, {}));
@@ -234,14 +258,22 @@ const Info = () => {
     }
 
     async function init() {
+        let adminLevel = props.adminLevelRequester();
+        console.log(adminLevel);
+        await adminLevelAccess(adminLevel, accountsSeed)
+        await adminLevelAccess(adminLevel, accountNames)
         
-        accountsSeed.forEach(account => {
+        let unique = [...new Set(accountsSeed)];
+
+        unique.forEach(account => {
             console.log(account)
+            
             return fountainContract(account)
         });
     }
 
     useEffect(() => {
+        // console.log(this.adminLevel);
         init();
         
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -250,116 +282,81 @@ const Info = () => {
     return  <div>
         {show? (
             <Flex>
-            {users.map((owner) => {
-                return <div key={owner.owner}>
-                    
-                    <Center>
-                    
-                    <Box
-                        flex={'2'}
-                        maxW={'330px'}
-                        boxShadow={'2xl'}
-                        rounded={'md'}
-                        overflow={'hidden'}
-                        align={'center'}>
-                        <Stack
-                        textAlign={'center'}
-                        p={3}
-                        
-                        align={'center'}>
-                        <Text
-                            fontSize={'sm'}
-                            fontWeight={500}
-                            
-                            p={2}
-                            px={3}
-                            color={'green.500'}
-                            rounded={'full'}>
-                            R&S Bartertown
-                        </Text>
-                        <Stack direction={'row'} align={'center'} justify={'center'}>
-
-                            <Text fontSize={'2xl'} color={'black'}>Drip Daily</Text>
-                            
-                        </Stack>
-                        <Stack direction={'row'} align={'center'} justify={'center'}>
-                            
-                            <Text fontSize={'2xl'} color={'black'}>$</Text>
-                            <Text fontSize={'2xl'} fontWeight={600} color={'black'} align={'center'} justify={'center'}>{owner.dripDaily.toFixed(2)}</Text>
-                        </Stack>
-                        </Stack>
-
-                        
-                        <List spacing={3}>
-                            <ListItem color={'black'} fontSize={'20px'} align={'center'}>
-                                <Link href={`https://bscscan.com/address/${owner.owner}`}>BSC Address</Link>
-                            </ListItem>
-                            <ListItem color={'black'} fontSize={'13px'} align={'center'}>
-                            <Link href={`https://bscscan.com/address/${owner.owner}`}>{owner.owner}</Link>
-                            </ListItem>
-                            
-                            <ListItem color={'black'} fontSize={'15px'} align={'left'}>
-                            <ListIcon as={CheckIcon} color="green.400" />
-                            Drip Faucet: {owner.faucetBalance} 
-                            </ListItem>
-                            <ListItem color={'black'} fontSize={'15px'} align={'left'}>
-                            <ListIcon as={CheckIcon} color="green.400" />
-                            Dog Pound: {owner.dogPoundBalance} 
-                            </ListItem>
-                            <ListItem color={'black'} fontSize={'15px'} align={'left'}>
-                            <ListIcon as={CheckIcon} color="green.400" />
-                            Drip Price = {dripPrice}
-                            </ListItem>
-                            <ListItem color={'black'} fontSize={'15px'} align={'left'}>
-                            <ListIcon as={CheckIcon} color="green.400" />
-                            Dogs Price = {dogsPrice}
-                            </ListItem>
-                            <ListItem color={'black'} fontSize={'15px'} align={'left'}>
-                            <ListIcon as={CheckIcon} color="green.400" />
-                            Pigs Price = {pigsPrice}
-                            </ListItem>
-                            <ListItem color={'black'} fontSize={'15px'} align={'left'}>
-                            <ListIcon as={CheckIcon} color="green.400" />
-                            <Link href='https://drip.formulate.finance/drip/' isExternal>Formulate- Drip</Link>
-                            </ListItem>
-                            <ListItem color={'black'} fontSize={'15px'} align={'left'}>
-                            <ListIcon as={CheckIcon} color="green.400" />
-                            <Link href='https://drip.formulate.finance/piggy-bank/' isExternal>Formulate- Piggy Bank</Link>
-                            </ListItem>
-                            
-                            <Link href={`https://debank.com/profile/${owner.owner}`} isExternal>
-                                <Box backgroundColor={'#D8D8D8'} mt={2}>
-                                    
-                                    <Button
-                                        m={2}
-
-                                        w={'90%'}
-                                        bg={'green.400'}
-                                        color={'white'}
-                                        rounded={'xl'}
-                                        boxShadow={'0 5px 20px 0px rgb(72 187 120 / 43%)'}
-                                        _hover={{
-                                        bg: 'green.500',
-                                        }}
-                                        _focus={{
-                                        bg: 'green.500',
-                                        }} >
-                                        Go to DeBank
-                                    </Button>
+                {users.map((owner) => {
+                    return <div key={owner.owner}>
+                        <Center>
+                            <Box flex={'2'} maxW={'330px'} boxShadow={'2xl'} rounded={'md'} overflow={'hidden'} align={'center'}>
+                                <Stack textAlign={'center'} p={3} align={'center'}>
+                                    <Text fontSize={'sm'} fontWeight={500} p={2} px={3} color={'green.500'} rounded={'full'}>{owner.nameThatAccount}</Text>
                                 
-                                </Box>
-                            </Link>
-                        </List>
+                                <Stack direction={'row'} align={'left'} justify={'left'}>   
+                                    <Text fontSize={'2xl'} color={'black'}>Daily $</Text>
+                                    <Text fontSize={'2xl'} fontWeight={600} color={'black'} align={'left'} justify={'left'}>{owner.dripDaily.toFixed(2)}</Text>
+                                </Stack>
+                                <Stack direction={'row'} align={'left'} justify={'left'}>   
+                                    <Text fontSize={'1sm'} color={'black'}>Staked Liquid $</Text>
+                                    <Text fontSize={'1sm'} fontWeight={600} color={'black'} align={'center'} justify={'center'}>{owner.dogsStakedValue.toFixed(2)}</Text>
+                                </Stack>
+                                </Stack>
+                                <List spacing={3}>
+                                    <ListItem color={'black'} fontSize={'20px'} align={'center'}>
+                                        <Link href={`https://bscscan.com/address/${owner.owner}`}>BSC Address</Link>
+                                    </ListItem>
+                                    <ListItem color={'black'} fontSize={'13px'} align={'center'}>
+                                    <Link href={`https://bscscan.com/address/${owner.owner}`}>{owner.owner}<ListIcon as={CopyIcon}></ListIcon></Link>
+                                    </ListItem>
+                                    
+                                    <ListItem color={'black'} fontSize={'15px'} align={'left'}>
+                                        <ListIcon as={StarIcon} color="green.400" />Drip Faucet: {owner.faucetBalance} 
+                                    </ListItem>
+                                    <ListItem color={'black'} fontSize={'15px'} align={'left'}>
+                                        <ListIcon as={UnlockIcon} color="green.400" />Dog Pound Staked: {owner.dogPoundBalance} Dogs
+                                    </ListItem>
+                                    <ListItem color={'black'} fontSize={'15px'} align={'left'}>
+                                        <ListIcon as={ArrowRightIcon} color="green.400" />Drip Price = ${dripPrice}
+                                    </ListItem>
+                                    <ListItem color={'black'} fontSize={'15px'} align={'left'}>
+                                        <ListIcon as={ArrowRightIcon} color="green.400" />Dogs Price = ${dogsPrice}
+                                    </ListItem>
+                                    <ListItem color={'black'} fontSize={'15px'} align={'left'}>
+                                        <ListIcon as={ArrowRightIcon} color="green.400" />Pigs Price = ${pigsPrice}
+                                    </ListItem>
+                                    <ListItem color={'black'} fontSize={'15px'} align={'left'}>
+                                        <ListIcon as={LinkIcon} color="green.400" />
+                                        <Link href='https://drip.formulate.finance/drip/' isExternal>Formulate- Drip</Link>
+                                    </ListItem>
+                                    <ListItem color={'black'} fontSize={'15px'} align={'left'}>
+                                    <ListIcon as={LinkIcon} color="green.400" />
+                                    <Link href='https://drip.formulate.finance/piggy-bank/' isExternal>Formulate- Piggy Bank</Link>
+                                    </ListItem>
+                                    
+                                    <Link href={`https://debank.com/profile/${owner.owner}`} isExternal>
+                                        <Box backgroundColor={'#D8D8D8'} mt={2}>
+                                            
+                                            <Button
+                                                m={2}
 
-                        
-                    </Box>
-                    </Center>
-                
-                </div>
-
-            })}
-            </Flex>
-            
+                                                w={'90%'}
+                                                bg={'green.400'}
+                                                color={'white'}
+                                                rounded={'xl'}
+                                                boxShadow={'0 5px 20px 0px rgb(72 187 120 / 43%)'}
+                                                _hover={{
+                                                bg: 'green.500',
+                                                }}
+                                                _focus={{
+                                                bg: 'green.500',
+                                                }} >
+                                                Go to DeBank
+                                            </Button> 
+                                        </Box>
+                                    </Link>
+                                </List>
+                            </Box>
+                        </Center>
+                    </div>
+                })}
+            </Flex>       
         )
         :
         (<div>loading...</div>)}

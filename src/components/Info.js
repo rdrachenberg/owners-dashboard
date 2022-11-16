@@ -16,7 +16,8 @@ import { dogPoundAbi } from '../contractABIs/dogPoundAbi';
 import {adminLevelAccess} from '../helpers/adminLevelAccess';
 
 
-const web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:8545'))
+// const web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:8545')); // local dev
+const web3 = new Web3(new Web3.providers.HttpProvider('https://rpc.ankr.com/bsc')); // bsc mainnet
 
 let accountsSeed = process.env.REACT_APP_ACCOUNTS_SEED.split(' ');
 let accountNames = process.env.REACT_APP_NAMED_ACCOUNTS.split(', ');
@@ -179,6 +180,7 @@ const Info = (props) => {
         }
 
         if(!amountOut) return 0;
+
         return amountOut
     }
 

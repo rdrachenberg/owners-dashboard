@@ -289,7 +289,7 @@ const Info = (props) => {
                         <Center>
                             <Box flex={'2'} maxW={'330px'} boxShadow={'2xl'} rounded={'md'} overflow={'hidden'} align={'center'}>
                                 <Stack textAlign={'center'} p={3} align={'center'}>
-                                    <Text fontSize={'sm'} fontWeight={500} p={2} px={3} color={'green.500'} rounded={'full'}>{owner.nameThatAccount}</Text>
+                                    <Text fontSize={'sm'} fontWeight={500} p={2} px={3} color={'blue.500'} rounded={'full'}>{owner.nameThatAccount}</Text>
                                 
                                 <Stack direction={'row'} align={'left'} justify={'left'}>   
                                     <Text fontSize={'2xl'} color={'black'}>Daily $</Text>
@@ -309,26 +309,26 @@ const Info = (props) => {
                                     </ListItem>
                                     
                                     <ListItem color={'black'} fontSize={'15px'} align={'left'}>
-                                        <ListIcon as={StarIcon} color="green.400" />Drip Faucet: {owner.faucetBalance} 
+                                        <ListIcon as={StarIcon} color="blue.400" />Drip Faucet: {owner.faucetBalance} 
                                     </ListItem>
                                     <ListItem color={'black'} fontSize={'15px'} align={'left'}>
-                                        <ListIcon as={UnlockIcon} color="green.400" />Dog Pound Staked: {owner.dogPoundBalance} Dogs
+                                        <ListIcon as={UnlockIcon} color="blue.400" />Dog Pound Staked: {owner.dogPoundBalance} Dogs
                                     </ListItem>
                                     <ListItem color={'black'} fontSize={'15px'} align={'left'}>
-                                        <ListIcon as={ArrowRightIcon} color="green.400" />Drip Price = ${dripPrice}
+                                        <ListIcon as={ArrowRightIcon} color="blue.400" />Drip Price = ${dripPrice}
                                     </ListItem>
                                     <ListItem color={'black'} fontSize={'15px'} align={'left'}>
-                                        <ListIcon as={ArrowRightIcon} color="green.400" />Dogs Price = ${dogsPrice}
+                                        <ListIcon as={ArrowRightIcon} color="blue.400" />Dogs Price = ${dogsPrice}
                                     </ListItem>
                                     <ListItem color={'black'} fontSize={'15px'} align={'left'}>
-                                        <ListIcon as={ArrowRightIcon} color="green.400" />Pigs Price = ${pigsPrice}
+                                        <ListIcon as={ArrowRightIcon} color="blue.400" />Pigs Price = ${pigsPrice}
                                     </ListItem>
                                     <ListItem color={'black'} fontSize={'15px'} align={'left'}>
-                                        <ListIcon as={LinkIcon} color="green.400" />
+                                        <ListIcon as={LinkIcon} color="blue.400" />
                                         <Link href='https://drip.formulate.finance/drip/' isExternal>Formulate- Drip</Link>
                                     </ListItem>
                                     <ListItem color={'black'} fontSize={'15px'} align={'left'}>
-                                    <ListIcon as={LinkIcon} color="green.400" />
+                                    <ListIcon as={LinkIcon} color="blue.400" />
                                     <Link href='https://drip.formulate.finance/piggy-bank/' isExternal>Formulate- Piggy Bank</Link>
                                     </ListItem>
                                     
@@ -344,10 +344,10 @@ const Info = (props) => {
                                                 rounded={'xl'}
                                                 boxShadow={'0 5px 20px 0px rgb(72 187 120 / 43%)'}
                                                 _hover={{
-                                                bg: 'green.500',
+                                                bg: 'blue.500',
                                                 }}
                                                 _focus={{
-                                                bg: 'green.500',
+                                                bg: 'blue.500',
                                                 }} >
                                                 Go to DeBank
                                             </Button> 

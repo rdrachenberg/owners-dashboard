@@ -42,12 +42,10 @@ const Info = (props) => {
     let [ownerAddress, setOwnerAddress] = useState();
 
     const fountainContract =  async (feedAddress) =>{
-        console.log(accountsSeed);
-        console.log('accountSeed var ^^^^^^^^')
-        console.log(feedAddress);
-        console.log('feedAddress var ^^^^^^^^^')
-      
-        // setAdminLeveler(adminLevel);
+        // console.log(accountsSeed);
+        // console.log('accountSeed var ^^^^^^^^')
+        // console.log(feedAddress);
+        // console.log('feedAddress var ^^^^^^^^^')
         // console.log(adminLeveler);
         // console.log('adminLeveler here ^^^^^^^^^^^^^')
         setOwnerAddress(feedAddress);
@@ -153,6 +151,7 @@ const Info = (props) => {
             // users.push(Object.assign(makeObj, {}));
             let temp = Object.assign({}, makeObj);
             users.push(temp);
+            
             // console.log(chopped)
             // console.log(getBalanceOfDeposits);
             // getTokenValueInUSD('0x20f663CEa80FaCE82ACDFA3aAE6862d246cE0333');
@@ -245,11 +244,7 @@ const Info = (props) => {
 
             setTotals(totalValue);
         }
-        
-
-        
-
-        
+                
         console.log('Value in BNB: ', priceInBnb);
 
         console.log('Drip Value in USD: ', dollarValue);
@@ -275,9 +270,15 @@ const Info = (props) => {
     }
 
     useEffect(() => {
+        
+        if(users.length !== -1) {
+            users = [];
+        }
+    }, []);
+
+    useEffect(() => {
         // console.log(this.adminLevel);
         init();
-        
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 

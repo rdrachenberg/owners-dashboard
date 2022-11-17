@@ -339,15 +339,15 @@ const Info = (props) => {
                                                 m={2}
 
                                                 w={'90%'}
-                                                bg={'green.400'}
+                                                bg={'blue.400'}
                                                 color={'white'}
                                                 rounded={'xl'}
                                                 boxShadow={'0 5px 20px 0px rgb(72 187 120 / 43%)'}
                                                 _hover={{
-                                                bg: 'blue.500',
+                                                bg: 'green.500',
                                                 }}
                                                 _focus={{
-                                                bg: 'blue.500',
+                                                bg: 'green.500',
                                                 }} >
                                                 Go to DeBank
                                             </Button> 

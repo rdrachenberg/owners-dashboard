@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, Box, Center, Text, Stack, List, ListItem, ListIcon, Button, Flex,} from '@chakra-ui/react'
-import { CheckIcon, CopyIcon, LinkIcon, StarIcon, UnlockIcon, ArrowRightIcon } from '@chakra-ui/icons';
+import {CopyIcon, LinkIcon, StarIcon, UnlockIcon, ArrowRightIcon } from '@chakra-ui/icons';
 import { ethers } from 'ethers';
 import { dripFaucetAddress } from '../contractAddresses/contractAddresses';
 import { dogPoundAddress } from '../contractAddresses/contractAddresses';
@@ -332,7 +332,7 @@ const Info = (props) => {
                                     <Link href='https://drip.formulate.finance/piggy-bank/' isExternal>Formulate- Piggy Bank</Link>
                                     </ListItem>
                                     
-                                    <Link href={`https://debank.com/profile/${owner.owner}`} isExternal>
+                                    {/* <Link href={`https://debank.com/profile/${owner.owner}`} isExternal> */}
                                         <Box backgroundColor={'#D8D8D8'} mt={2}>
                                             
                                             <Button
@@ -348,11 +348,12 @@ const Info = (props) => {
                                                 }}
                                                 _focus={{
                                                 bg: 'green.500',
-                                                }} >
+                                                }} 
+                                                onClick={() => {window.open(`https://debank.com/profile/${owner.owner}`, '_blank')}} >
                                                 Go to DeBank
                                             </Button> 
                                         </Box>
-                                    </Link>
+                                    {/* </Link> */}
                                 </List>
                             </Box>
                         </Center>

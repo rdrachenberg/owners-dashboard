@@ -36,6 +36,13 @@
 
 /* custom css */
 
+.background-head {
+  background: #373B44;  /* fallback for old browsers */
+background: -webkit-linear-gradient(to right, #4286f4, #373B44);  /* Chrome 10-25, Safari 5.1-6 */
+background: linear-gradient(to right, #4286f4, #373B44); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+}
+
 .css-g69j43 {
   background-color: aliceblue;
   padding: 15px;
@@ -97,18 +104,9 @@
   content: ''; position: absolute; top: -2px; bottom: -2px; left: -2px; right: -2px; background: #fff; z-index: -1; filter: blur(40px);
 }
 
-
-
 .form-outer::before .form-outer::after {
   background: linear-gradient(235deg, #89ff00, #060c21, #00bcd4);
 }
-
-.box{ } 
-.box::before{ }
-.box::after{ }
-.box::before, .box::after{ }
-h1{ margin-bottom: 10px;}
-p{line-height: 24px;}
 
 .header {
   display: flexbox;
